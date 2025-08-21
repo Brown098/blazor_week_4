@@ -1,0 +1,20 @@
+﻿@page "/localstorage"
+
+@inject LocalService.LocalStorageService LS
+
+<script src="/js/sits.js"></script>
+
+
+ <h3>本地存储</h3>
+ <input @bind = "note" placeholder="写点东西点保存"/>
+ <button @onclick = "Save">保存</button>
+ <button @onclick="Load">读取</button>
+ <button @onclick ="Clear">清除</button>
+ <p>读取到 @loaded</p>
+@code{
+    string note, loaded;
+    async Task Save() => await LS.SetItemAsync("my-note", note);
+    async Task Load() => loaded = await LS.GetItemAsync("my-note") ?? "(空)";
+    async Task Clear(){ await LS.RemoveItemAsync("my-note");loaded = "(空)"; }
+
+ }

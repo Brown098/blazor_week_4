@@ -1,0 +1,49 @@
+﻿@page "/perf"
+<h3>性能优化示例</h3>
+<button class="btn btn-sm btn-primary" @onclick="Shuffle">随机重排</button>
+<ul>
+
+    @foreach(var item in Items)
+    {
+    <li @key="item.Id"> @item.Id - @item.Text
+        </li>
+    }
+   
+</ul>
+<!--延迟渲染-->
+
+    <button @onclick="Toggle"> @((isOpen ? "收起" : "展开"))</button>
+    @if (isOpen)
+    {
+        <div>
+        <button @onclick="Toggle"> @(isOpen ? "收起" : "展开") 详情</button>
+        @foreach (var item in Items)
+        {
+            <ul>
+                <li>
+                    @item.Id
+                </li>
+            </ul>
+        }
+    </div>
+    }
+
+
+
+@code{
+    class Item{
+        public int Id{ get; set; }
+        public string? Text{ get; set; }
+    }
+    List<Item> Items = Enumerable.Range(1, 200).Select(i => new Item { Id = i, Text = $"项目{i}" }).ToList();
+    void Shuffle(){
+        var rng = new Random();
+        Items = Items.OrderBy(x => rng.Next()).ToList();
+
+
+    }
+    bool isOpen;
+   
+    void Toggle() => isOpen = !isOpen;
+}
+

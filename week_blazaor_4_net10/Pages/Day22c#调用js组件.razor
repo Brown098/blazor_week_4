@@ -1,0 +1,21 @@
+﻿@page "/jsinterop"
+@inject IJSRuntime JS
+<script src="/js/sits.js"></script>
+<h3>day22c_调用js组件示例</h3>
+<input @bind=messgae placeholder="请输入要提示的内容" />
+<button class="btn btn-primary"  @onclick=ShowAlert>调用JS Alert</button>
+<p>本地时间: @localtime</p>
+<button class="btn btn-secondary" @onclick=Gettime>获取本地时间</button>
+@code {
+    string messgae = "hello from blazor";
+    string localtime ;
+    async Task ShowAlert()
+    {
+        await JS.InvokeVoidAsync("myBlazor.showAlert", messgae);
+
+    }
+    async Task Gettime()
+    {
+        localtime= await JS.InvokeAsync<string>("myBlazor.getlocalTime");
+    }
+}

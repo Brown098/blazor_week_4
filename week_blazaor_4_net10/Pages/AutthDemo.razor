@@ -1,0 +1,28 @@
+﻿@page "/auth"
+@inject NavigationManager Nav
+@inject AuthService Auth
+<h3>模拟登录</h3>
+<input @bind="name" placeholder="用户名" />
+<button @onclick="Login">登录</button>
+<button @onclick="Logout">退出</button>
+<p>当前Token: @tokenDisplay</p>
+@code{
+    string? name;
+    string? tokenDisplay;
+    async Task Login()
+    {
+        var fake = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(name + "|fakejwt"));
+        await Auth.LogintAsync(name, fake);
+        tokenDisplay = fake;
+        StateHasChanged();
+        await Task.Delay(1000);
+        Console.WriteLine(tokenDisplay);
+        Nav.NavigateTo("/jsinterop");
+
+    }
+    async Task Logout()
+    {
+        await Auth.LogoutAsync();
+        tokenDisplay = null;
+    }
+}

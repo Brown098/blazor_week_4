@@ -1,0 +1,75 @@
+﻿@page "/todo-final"
+@using week_blazaor_4_net10
+@inject TodoServer Todo
+@inject IJSRuntime JSRuntime
+
+<h3>最终版含本地存储</h3>
+
+<input @bind="newTitle" placeholder="新任务" />
+<button class="btn btn-sm btn-primary" @onclick="Add">添加</button>
+
+<ul>
+    @foreach (var item in items)
+    {
+        <li @key="item.Id">
+            <input type="checkbox"
+                   checked="@item.Done"
+                   @onchange="async (e) => await Toggle(item.Id, (bool)e.Value)" />
+            <span class="@(item.Done ? "task-done" : "")">@item.Title</span>
+            <button class="btn btn-sm btn-danger" @onclick="async () => await Delete(item.Id)">
+                删除
+            </button>
+        </li>
+    }
+</ul>
+
+@code {
+    string newTitle;
+    List<TodoItem> items = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Todo.InitializeAsync();
+        await LoadItems();
+    }
+
+    async Task Add()
+    {
+        if (!string.IsNullOrWhiteSpace(newTitle))
+        {
+            await Todo.AddAsync(newTitle);
+            await LoadItems();
+            newTitle = "";
+        }
+    }
+
+    async Task Toggle(int id, bool newValue)
+    {
+        // 先更新UI状态以提高响应速度
+        var item = items.FirstOrDefault(x => x.Id == id);
+        if (item != null)
+        {
+            item.Done = newValue;
+            StateHasChanged(); // 立即更新UI
+
+            // 然后调用服务更新
+            await Todo.ToggleAsync(id);
+
+            // 可选：重新加载数据以确保一致性
+            // await LoadItems();
+        }
+    }
+
+    async Task Delete(int id)
+    {
+        await Todo.DeleteAsync(id);
+        await LoadItems();
+    }
+
+    async Task LoadItems()
+    {
+        items = await Todo.GetAllAsync();
+        // 调试输出
+        await JSRuntime.InvokeVoidAsync("console.log", "数据已更新:", items);
+    }
+}
